@@ -44,7 +44,7 @@ def gencomm(filename):
 #        print '%s already exist!' % filename
 #        os.remove(filename)
 #        print '%s removed!' % filename 
-    file = open(filename,'w')
+    file = open(filename, 'w')
     today = datetime.date.today()
     date = today.strftime('%Y')+'-'+today.strftime('%m')+'-'+today.strftime('%d')
     filetypes = string.split(filename,'.')
@@ -63,11 +63,46 @@ def gencomm(filename):
         file.write('*/\n')
     else:
         print 'just create %s' % filename
-    file.close() 
-
+    file.close()
+    
+def genFuncDef(file):
+    for i in range(len(tableField)):
+        fieldsplit = tableField[i].name.lower().split('_')
+        fieldname = ''
+        for j in range(len(fieldsplit)):
+            fieldname += fieldsplit[j].capitalize()
+        if tableField[i].type == 'NUMBER':
+            if tableField[i].len <= 9:
+                file.write('    void set' + fieldname + '(int32_t nValue);')
+            else:
+                file.write('    void set' + fieldname + '(int64_t lValue);')
+        elif tableField[i].type == 'VARCHAR2':
+            file.write('    void set' + fieldname + '(const char* szValue);')
+        else:
+            print 'unkown type'
+        file.write('\n')
+        
+    file.write('\n\n')
+    
+    for i in range(len(tableField)):
+        fieldsplit = tableField[i].name.lower().split('_')
+        fieldname = ''
+        for j in range(len(fieldsplit)):
+            fieldname += fieldsplit[j].capitalize()
+        if tableField[i].type == 'NUMBER':
+            if tableField[i].len <= 9:
+                file.write('    int32_t get' + fieldname + '();')
+            else:
+                file.write('    int64_t get' + fieldname + '();')
+        elif tableField[i].type == 'VARCHAR2':
+            file.write('    const char* get' + fieldname + '();')
+        else:
+            print 'unkown type'
+        file.write('\n')
+        
 def genheadfile(filename):
     gencomm(filename)
-    file = open(filename,'a+')
+    file = open(filename,'a+')   
     headmacro = '__' + filename.split('.')[0].upper() + '_H__'
     file.writelines('#ifndef ' + headmacro)
     file.write('\n')
@@ -95,6 +130,7 @@ def genheadfile(filename):
     file.write('class ' + classname + ' : ' + 'public RBase<' + structname + '>')
     file.write('\n{')
     file.write('\npublic:\n')
+    genFuncDef(file)
     file.write('\n};')
     file.write('\n\n#endif\n')
     file.close() 

@@ -62,7 +62,7 @@ def gencomm(filename):
         file.write('\n')
         file.write('* @author: ')
         file.write('\n')
-        file.write('*/\n')
+        file.write('*/\n\n')
     else:
         print 'just create %s' % filename
     file.close()

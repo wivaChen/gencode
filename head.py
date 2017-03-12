@@ -6,18 +6,19 @@ def genFuncDef(file):
         fieldname = ''
         for j in range(len(fieldsplit)):
             fieldname += fieldsplit[j].capitalize()
+        file.write('    void set' + fieldname)
         if tableField[i].type == 'NUMBER':
             if tableField[i].len <= 9:
-                file.write('    void set' + fieldname + '(int32_t nValue);')
+                file.write('(int32_t nValue);\n')
             else:
-                file.write('    void set' + fieldname + '(int64_t lValue);')
+                file.write('(int64_t lValue);\n')
         elif tableField[i].type == 'VARCHAR2':
-            file.write('    void set' + fieldname + '(const char* szValue);')
+            file.write('(const char* szValue);\n')
+        elif tableField[i].type == 'DATE':
+            file.write('(TTime tValue);\n')
         else:
             print 'unkown type'
-        file.write('\n')
-        
-    file.write('\n\n')
+    file.write('\n')
     
     for i in range(len(tableField)):
         fieldsplit = tableField[i].name.lower().split('_')
@@ -26,19 +27,41 @@ def genFuncDef(file):
             fieldname += fieldsplit[j].capitalize()
         if tableField[i].type == 'NUMBER':
             if tableField[i].len <= 9:
-                file.write('    int32_t get' + fieldname + '();')
+                file.write('    int32_t get' + fieldname + '();\n')
             else:
-                file.write('    int64_t get' + fieldname + '();')
+                file.write('    int64_t get' + fieldname + '();\n')
         elif tableField[i].type == 'VARCHAR2':
-            file.write('    const char* get' + fieldname + '();')
+            file.write('    const char* get' + fieldname + '();\n')
+        elif tableField[i].type == 'DATE':
+            file.write('    TTime get' + fieldname +'();\n')
         else:
             print 'unkown type'
-        file.write('\n')
 
-def genSelectFunc(file, structname):
-    tempname = structname[0].lower() + structname[1:]
-    file.write('    int32_t getOneByKey(const ' + structname + '& ' + tempname + ');')
-    file.write('\n')
+def genSelectFunc(file):
+    file.write('    int ' + 'getOneByKey(')
+    flag = 0
+    for i in range(len(tableField)):
+        if tableField[i].iskey:         
+            fieldsplit = tableField[i].name.lower().split('_')
+            fieldname = ''
+            if flag == 1:
+                file.write(', ')
+            else:
+                flag = 1
+            for j in range(len(fieldsplit)):
+                fieldname += fieldsplit[j].capitalize()
+            if tableField[i].type == 'NUMBER':
+                if tableField[i].len <= 9:
+                    file.write('int32_t n' + fieldname)
+                else:
+                    file.write('int64_t l' + fieldname)
+            elif tableField[i].type == 'VARCHAR2':
+                file.write('const char* sz' + fieldname)
+            elif tableField[i].type == 'DATE':
+                file.write('TTime' + fieldname)
+            else:
+                print 'unkown type'  
+    file.write(');\n')
     
 def genInsertFunc(file, structname):
     tempname = structname[0].lower() + structname[1:]
@@ -62,7 +85,9 @@ def genheadfile(filename, classname, structname):
     file.writelines('#ifndef ' + headmacro)
     file.write('\n')
     file.writelines('#define ' + headmacro)
-    file.write('\n\n\n')
+    file.write('\n\n')
+    file.write('#include "RBase.h"\n')
+    file.write('\n')
     file.write('struct ' + structname)
     file.write('\n{\n')
     for i in range(len(tableField)):
@@ -72,11 +97,13 @@ def genheadfile(filename, classname, structname):
             fieldname += fieldsplit[j].capitalize()   
         if tableField[i].type == 'NUMBER':
             if tableField[i].len <= 9:
-                file.write('    int32_t n' + fieldname + ';')
+                file.write('    int32_t m_n' + fieldname + ';')
             else:
-                file.write('    int64_t l' + fieldname + ';')
+                file.write('    int64_t m_l' + fieldname + ';')
         elif tableField[i].type == 'VARCHAR2':
-            file.write('    char sz' + fieldname + '[' + str(tableField[i].len) + '];')
+            file.write('    char m_sz' + fieldname + '[' + str(tableField[i].len) + '];')
+        elif tableField[i].type == 'DATE':
+            file.write('    TTime m_t' + fieldname + ';')
         else:
             print 'unkown type'
         file.write('\n')
@@ -87,7 +114,7 @@ def genheadfile(filename, classname, structname):
     file.write('\npublic:\n')
     genFuncDef(file)
     file.write('\n\n')
-    genSelectFunc(file, structname)
+    genSelectFunc(file)
     genInsertFunc(file, structname)
     genDeleteFunc(file, structname)
     file.write('\n')

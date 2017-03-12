@@ -49,8 +49,10 @@ def genxmlfile(filename, tablename):
             while(nLen % 4 != 0):
                 nLen += 1
             file.write('string" length="' + str(nLen) + '" />\n')
+        elif tableField[i].type == 'DATE':
+            file.write('datetime" />\n') 
         else:
-            file.write('datetime" />\n')            
+            print('unknown type\n')            
     file.write('    </BoSchema>\n')
     
     file.write('    <BoMapping boName="' + tablename +'">\n')

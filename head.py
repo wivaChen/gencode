@@ -27,13 +27,13 @@ def genFuncDef(file):
             fieldname += fieldsplit[j].capitalize()
         if tableField[i].type == 'NUMBER':
             if tableField[i].len <= 9:
-                file.write('    int32_t get' + fieldname + '();\n')
+                file.write('    int32_t get' + fieldname + '() const;\n')
             else:
-                file.write('    int64_t get' + fieldname + '();\n')
+                file.write('    int64_t get' + fieldname + '() const;\n')
         elif tableField[i].type == 'VARCHAR2':
-            file.write('    const char* get' + fieldname + '();\n')
+            file.write('    const char* get' + fieldname + '() const;\n')
         elif tableField[i].type == 'DATE':
-            file.write('    TTime get' + fieldname +'();\n')
+            file.write('    TTime get' + fieldname +'() const;\n')
         else:
             print 'unkown type'
 

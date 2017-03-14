@@ -47,7 +47,7 @@ funcinsertstr = '''
     CREATE_BO(pFcty, "%s", m_pBO);
     CHECK_NULL(m_pBO);
 
-    setFields(tRatableEventType);
+    setFields(%s);
 
     int nRet = pFcty->addRootBO(m_pBO);
     RETURN_WHEN_ERR;
@@ -167,7 +167,7 @@ def genSelectFuncImp(file, classname):
                 file.write('TTime' + fieldname)
             else:
                 print 'unkown type'  
-    file.write(')\n')
+    file.write(')\n{\n')
     file.write(fileselectstr)
     for i in range(len(tableField)):
         if tableField[i].iskey:         
@@ -217,7 +217,7 @@ def genSetFieldsFunc(file, classname, structname):
 def genInsertFunc(file, classname, structname):
     tempname = structname[0].lower() + structname[1:]
     file.write('int32_t '+ classname + '::insert(const ' + structname + '& ' + tempname + ')')    
-    file.write(funcinsertstr % table_name)
+    file.write(funcinsertstr % (table_name, tempname))
 
 def gendeleteFunc(file, classname, structname):
     tempname = structname[0].lower() + structname[1:]

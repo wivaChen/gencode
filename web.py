@@ -53,9 +53,8 @@ def funcimg(browser):
     sharpness =ImageEnhance.Contrast(imgry)
     sharp_img = sharpness.enhance(2.0)
     sharp_img.save("f://frame5.jpg")
+    cleanImage('f://frame5.jpg')
     qq=Image.open('f://frame5.jpg')
-    cleanImage('f://frame4.jpg')
-    pytesseract.
     text=pytesseract.image_to_string(qq)
     print text
     browser.find_element_by_id("ValidateCode").send_keys(text)
